@@ -1,2 +1,2 @@
 # ConscMachines
-Official repository of the EmoAIApp using Hume. To react and perceive in real time. 
+Official repository of an emotional AI app using Hume. To react and perceive in real-time. 
