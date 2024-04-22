@@ -27,7 +27,7 @@ stream.stop_stream()
 stream.close()
 audio.terminate()
 
-# Write your data into a .wav file
+# Write data into a .wav file
 wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
 wf.setnchannels(CHANNELS)
 wf.setsampwidth(audio.get_sample_size(FORMAT))
