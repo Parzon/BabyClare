@@ -1,0 +1,9 @@
+.venv
+.idea
+config/config.json
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+apikey.txt
