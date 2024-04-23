@@ -4,7 +4,7 @@ from hume.models.config import ProsodyConfig
 import json
 import glob
 
-client = HumeBatchClient("sQp9AtmP52EQ5kD1AG9aQxYfZgrkPvwrOKGZZAxaZAqbynvv")
+client = HumeBatchClient("API KEY")
 # Get all JPEG files from the 'faces' directory
 urls = glob.glob('faces/*.jpeg')
 

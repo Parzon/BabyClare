@@ -17,8 +17,8 @@ def setup_video():
     return cap
 
 async def collect_data(audio_stream, video_capture):
-    voice_client = HumeStreamClient(api_key='sQp9AtmP52EQ5kD1AG9aQxYfZgrkPvwrOKGZZAxaZAqbynvv')
-    face_client = HumeStreamClient(api_key='sQp9AtmP52EQ5kD1AG9aQxYfZgrkPvwrOKGZZAxaZAqbynvv')
+    voice_client = HumeStreamClient(api_key='')
+    face_client = HumeStreamClient(api_key='')
     voice_config = LanguageConfig()
     face_config = FaceConfig(identify_faces=True)
 

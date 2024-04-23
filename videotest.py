@@ -39,3 +39,6 @@ if __name__ == '__main__':
     frame_rate = 30  # Modify as needed
     saved_frames = capture_frames_from_camera(frame_rate, './captured_frames')
     print(f"Total frames saved: {saved_frames}")
+
+
+# interrupt the code with ctrl+c

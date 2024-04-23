@@ -2,10 +2,10 @@ import asyncio
 from hume import HumeStreamClient
 from hume.models.config import ProsodyConfig
 
-# Your Hume.ai API Key
-api_key = 'sQp9AtmP52EQ5kD1AG9aQxYfZgrkPvwrOKGZZAxaZAqbynvv'
+ # Your API key here
+api_key = ''
 # Filepath to your audio file
-audio_file_path = "output.wav"  # Ensure you put the correct file path here
+audio_file_path = "output.wav" 
 
 # Main function to send audio data
 async def main():

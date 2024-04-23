@@ -5,7 +5,7 @@ import base64
 from hume import HumeStreamClient
 from hume.models.config import FaceConfig
 
-api_key = 'sQp9AtmP52EQ5kD1AG9aQxYfZgrkPvwrOKGZZAxaZAqbynvv'  # Replace with your Hume AI API Key
+api_key = ''  # Replace with your Hume AI API Key
 frames_directory = './captured_frames'  # Path to the directory containing frames
 
 # Function to encode image to base64 and convert it to bytes
