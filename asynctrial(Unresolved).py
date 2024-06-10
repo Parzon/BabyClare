@@ -10,7 +10,7 @@ import sounddevice as sd
 import queue
 
 # Replace with your Hume API key
-api_key = 'sQp9AtmP52EQ5kD1AG9aQxYfZgrkPvwrOKGZZAxaZAqbynvv'
+api_key = "YOUR_API_KEY"
 
 # Queue for audio processing
 audio_queue = queue.Queue()
