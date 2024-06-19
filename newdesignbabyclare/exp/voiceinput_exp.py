@@ -627,3 +627,29 @@ if __name__ == "__main__":
         print("User did not ask for a response. Continuing to listen...")
         listen_to_user()
 
+
+"""
+Key Components and Workflow
+
+	1.	Libraries and Initialization
+	•	We use various libraries to handle audio recording, processing, and API interactions.
+	•	OpenAI’s API client is initialized to interact with Whisper (for speech-to-text) and GPT-4 (for text analysis and response generation).
+	•	Hume AI’s API is used for sentiment analysis.
+	2.	Listening to User Speech
+	•	The system continuously listens to the user until there is a 3-second pause, indicating the end of speech.
+	•	Audio is recorded in 7-second intervals to ensure we capture ongoing speech without interruptions.
+	3.	Saving Audio
+	•	The recorded audio is saved as a WAV file (audio.wav) for further processing.
+	4.	Silence Detection
+	•	The system analyzes the audio to detect if the user has stopped speaking. This is done by checking the amplitude (volume) of the audio signal. If the amplitude is below a certain threshold, it is considered silence.
+	5.	Speech-to-Text Conversion
+	•	The saved audio file is sent to OpenAI’s Whisper API, which converts the speech into text. This text represents what the user said.
+	6.	Sentiment Analysis
+	•	The recorded audio file is sent to Hume AI’s API to analyze the emotional tone of the user’s speech. This helps in understanding the user’s emotional state during the conversation.
+	7.	Determining if a Response is Needed
+	•	The transcribed text is analyzed to determine if the user is expecting a response. Phrases like “what do you think,” “what do you feel,” or “tell me” indicate that a response is needed.
+	•	OpenAI’s GPT-4 is used to analyze the text and decide if the user wants a response.
+	8.	Generating a Response
+	•	If a response is required, GPT-4 generates a text response based on the user’s input and the sentiment analysis.
+	•	The generated text is then converted into speech using OpenAI’s Text-to-Speech (TTS) API, creating an audio file (response_speech.mp3) that the
+"""
