@@ -11,7 +11,13 @@ import torch
 import torchaudio
 from torchaudio.transforms import MelSpectrogram
 import numpy as np
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve Hume API key from environment variables
+HUME_API_KEY = os.getenv("HUME_API_KEY")
 
 def listen_to_user():
     duration = 7  # seconds
