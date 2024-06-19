@@ -1,5 +1,3 @@
-# main.py
-
 import logging
 from openai import OpenAI
 import time

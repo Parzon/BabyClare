@@ -1,0 +1,15 @@
+opencv-python==4.5.5.62
+numpy==1.22.0
+sounddevice==0.4.4
+wavio==0.0.4
+torch==1.10.1
+torchaudio==0.10.1
+scipy==1.7.3
+requests==2.26.0
+hume==0.2.0
+keras==2.7.0
+keras-vggface==0.6
+sqlite3==2.6.0
+pydub==0.25.1
+python-dotenv==0.19.2
+pytest==6.2.5

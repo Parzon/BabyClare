@@ -1,4 +1,3 @@
-# audio.py
 import sounddevice as sd
 import wavio as wv
 import numpy as np
@@ -46,7 +45,7 @@ def transcribe_audio(filepath, client):
         response_format="text"
     )
     return transcription['text']
-    
+
 #pip install torch torchaudio
 class SpeakerNet(torch.nn.Module):
     def __init__(self):

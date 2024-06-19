@@ -1,5 +1,3 @@
-# test_audio.py
-
 import unittest
 import numpy as np
 from audio import capture_audio, generate_voice_embeddings

@@ -1,5 +1,4 @@
-# video.py
-import cv2  # For capturing video
+import cv2 
 import traceback
 import numpy as np
 import dlib
@@ -49,8 +48,6 @@ async def analyze_face_sentiment(stream, csv_data, client):
                 print_emotions(emotions)
     except Exception:
         print(traceback.format_exc())
-
-#pip install keras-vggface keras-applications
 
 model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg')
 

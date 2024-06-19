@@ -1,5 +1,3 @@
-# utilities.py
-
 from base64 import b64encode
 from io import BytesIO
 from pathlib import Path

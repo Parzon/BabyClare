@@ -1,5 +1,3 @@
-# sentiment_analysis.py
-
 def wants_response(text, client):
     response = client.chat.completions.create(
         model="gpt-4",
