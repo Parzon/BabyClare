@@ -3,21 +3,39 @@ import wavio as wv
 import numpy as np
 import traceback
 from datetime import datetime
-from scipy.spatial import distance
+from scipy.spatial.distance import cosine
 from hume import HumeStreamClient
 from hume.models.config import BurstConfig, ProsodyConfig
 from utilities import encode_audio, generate_audio_stream, print_emotions
 import torch
 import torchaudio
 from torchaudio.transforms import MelSpectrogram
-import numpy as np
 from dotenv import load_dotenv
+import os
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Retrieve Hume API key from environment variables
 HUME_API_KEY = os.getenv("HUME_API_KEY")
+
+# Load pretrained speaker recognition model
+class SpeakerNet(torch.nn.Module):
+    def __init__(self):
+        super(SpeakerNet, self).__init__()
+        self.melspec = MelSpectrogram()
+        self.model = torch.hub.load('pytorch/vision:v0.10.0', 'resnet34', pretrained=True)
+        self.model.fc = torch.nn.Linear(self.model.fc.in_features, 512)  # Embedding size
+
+    def forward(self, x):
+        x = self.melspec(x)
+        x = x.unsqueeze(1)
+        x = self.model(x)
+        return x
+
+model = SpeakerNet()
+model.load_state_dict(torch.load('path_to_pretrained_model.pth'))
+model.eval()
 
 def listen_to_user():
     duration = 7  # seconds
@@ -52,43 +70,12 @@ def transcribe_audio(filepath, client):
     )
     return transcription['text']
 
-#pip install torch torchaudio
-class SpeakerNet(torch.nn.Module):
-    def __init__(self):
-        super(SpeakerNet, self).__init__()
-        self.melspec = MelSpectrogram()
-        self.model = torch.hub.load('pytorch/vision:v0.10.0', 'resnet34', pretrained=True)
-        self.model.fc = torch.nn.Linear(self.model.fc.in_features, 512)  # Embedding size
-
-    def forward(self, x):
-        x = self.melspec(x)
-        x = x.unsqueeze(1)
-        x = self.model(x)
-        return x
-
-model = SpeakerNet()
-model.load_state_dict(torch.load('path_to_pretrained_model.pth'))
-model.eval()
-
 def generate_voice_embeddings(audio):
     audio_tensor = torch.tensor(audio, dtype=torch.float32)
     embedding = model(audio_tensor).detach().numpy()
     return embedding.flatten()
 
-def identify_voice(voice_embedding, db):
-    for user in db:
-        stored_embedding = user['voice_embedding']
-        if distance.euclidean(voice_embedding, stored_embedding) < 0.6:  # Placeholder threshold
-            return user['name'], user['id']
-    return None, None
-
-def store_new_voice_data(user_id, voice_embedding, db):
-    for user in db:
-        if user['id'] == user_id:
-            user['voice_embedding'] = voice_embedding
-            break
-
-async def analyze_voice_sentiment(filepath, csv_data, client):
+async def analyze_voice_sentiment(filepath, csv_data):
     try:
         hume_client = HumeStreamClient(HUME_API_KEY)
         burst_config = BurstConfig()
@@ -120,5 +107,3 @@ async def analyze_voice_sentiment(filepath, csv_data, client):
                     print_emotions(emotions)
     except Exception:
         print(traceback.format_exc())
-
-

@@ -1,7 +1,5 @@
-# database.py
-
 import sqlite3
-from datetime import datetime
+import numpy as np
 
 def setup_database():
     conn = sqlite3.connect('users.db')
@@ -40,3 +38,43 @@ def add_interaction(user_id, input_text, response_text, voice_sentiment, face_se
               (user_id, timestamp, input_text, response_text, voice_sentiment, face_sentiment))
     conn.commit()
     conn.close()
+
+def find_closest_face(face_embedding):
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT id, name, face_embedding FROM users")
+    users = c.fetchall()
+    conn.close()
+
+    closest_user = None
+    closest_distance = float('inf')
+
+    for user in users:
+        user_id, name, stored_face_embedding = user
+        stored_face_embedding = np.frombuffer(stored_face_embedding, dtype=np.float32)
+        distance = cosine(face_embedding, stored_face_embedding)
+        if distance < closest_distance:
+            closest_distance = distance
+            closest_user = (name, user_id)
+
+    return closest_user if closest_distance < 0.6 else None  # Placeholder threshold
+
+def find_closest_voice(voice_embedding):
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT id, name, voice_embedding FROM users")
+    users = c.fetchall()
+    conn.close()
+
+    closest_user = None
+    closest_distance = float('inf')
+
+    for user in users:
+        user_id, name, stored_voice_embedding = user
+        stored_voice_embedding = np.frombuffer(stored_voice_embedding, dtype=np.float32)
+        distance = cosine(voice_embedding, stored_voice_embedding)
+        if distance < closest_distance:
+            closest_distance = distance
+            closest_user = (name, user_id)
+
+    return closest_user if closest_distance < 0.6 else None  # Placeholder threshold

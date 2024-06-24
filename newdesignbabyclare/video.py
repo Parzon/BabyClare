@@ -1,18 +1,21 @@
 import cv2 
 import traceback
 import numpy as np
-import dlib
 from scipy.spatial import distance
 from datetime import datetime
 from hume import HumeStreamClient
 from hume.models.config import FaceConfig
-from utilities import print_emotions
+from utilities import print_emotions, encode_image
 from keras_vggface.vggface import VGGFace
 from keras_vggface.utils import preprocess_input
 from keras.preprocessing import image
-import numpy as np
+from scipy.spatial.distance import cosine
 
+# Initialize Hume API key
 HUME_API_KEY = "YOUR_HUME_API_KEY"
+
+# Initialize VGGFace model
+model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg')
 
 async def stream_video():
     cap = cv2.VideoCapture(0)
@@ -29,11 +32,7 @@ async def stream_video():
 
     cap.release()
 
-def encode_image(frame):
-    _, buffer = cv2.imencode('.jpg', frame)
-    return b64encode(buffer).decode('utf-8')
-
-async def analyze_face_sentiment(stream, csv_data, client):
+async def analyze_face_sentiment(stream, csv_data):
     try:
         hume_client = HumeStreamClient(HUME_API_KEY)
         config = FaceConfig(identify_faces=True)
@@ -49,15 +48,12 @@ async def analyze_face_sentiment(stream, csv_data, client):
     except Exception:
         print(traceback.format_exc())
 
-model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg')
-
 def generate_face_embeddings(face):
-    face = image.img_to_array(face)
-    face = np.expand_dims(face, axis=0)
-    face = preprocess_input(face)
-    embedding = model.predict(face)
+    img = image.img_to_array(face)
+    img = np.expand_dims(img, axis=0)
+    img = preprocess_input(img)
+    embedding = model.predict(img)
     return embedding.flatten()
-
 
 def detect_faces(frame):
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -65,21 +61,10 @@ def detect_faces(frame):
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
     return faces
 
-def generate_face_embeddings(face):
-    # Placeholder for actual embedding generation using a pre-trained model like FaceNet or dlib
-    # For example, using dlib:
-    # face_recognition_model = dlib.face_recognition_model_v1('dlib_face_recognition_resnet_model_v1.dat')
-    # shape_predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
-    # shape = shape_predictor(face, dlib.rectangle(0, 0, face.shape[1], face.shape[0]))
-    # embedding = face_recognition_model.compute_face_descriptor(face, shape)
-    embedding = np.random.rand(128)  # Placeholder for actual embedding
-    return embedding
-
-
-def identify_faces(face_embedding, db):
+def identify_faces(face_embedding, db, threshold=0.5):
     for user in db:
         stored_embedding = user['face_embedding']
-        if distance.euclidean(face_embedding, stored_embedding) < 0.6:  # Placeholder threshold
+        if 1 - cosine(face_embedding, stored_embedding) > threshold:  # Cosine similarity
             return user['name'], user['id']
     return None, None
 
