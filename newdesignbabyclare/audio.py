@@ -75,7 +75,6 @@ def generate_voice_embeddings(audio):
     embedding = model(audio_tensor).detach().numpy()
     return embedding.flatten()
 
-
 def identify_voice(voice_embedding, db):
     for user in db:
         stored_embedding = user['voice_embedding']
