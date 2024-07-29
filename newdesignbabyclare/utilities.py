@@ -1,6 +1,7 @@
 from base64 import b64encode
 from io import BytesIO
 from pathlib import Path
+from typing import List, Dict
 from typing import Any, Iterator
 from urllib.request import urlretrieve
 from pydub import AudioSegment
@@ -31,7 +32,7 @@ def encode_audio(segment: AudioSegment) -> str:
     segment.export(bytes_io, format="wav")
     return b64encode(bytes_io.read()).decode('utf-8')
 
-def print_emotions(emotions: list[dict[str, Any]]) -> None:
+def print_emotions(emotions: List[Dict[str, Any]]) -> None:
     emotion_map = {e["name"]: e["score"] for e in emotions}
     for emotion in ["Joy", "Sadness", "Anger"]:
         print(f"- {emotion}: {emotion_map[emotion]:.4f}")

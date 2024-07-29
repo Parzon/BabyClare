@@ -10,32 +10,33 @@ from utilities import encode_audio, generate_audio_stream, print_emotions
 import torch
 import torchaudio
 from torchaudio.transforms import MelSpectrogram
-from dotenv import load_dotenv
 import os
-
-# Load environment variables from .env file
-load_dotenv()
+from env import get_hume_api_key
+import timm
+import torch.nn.functional as F
 
 # Retrieve Hume API key from environment variables
-HUME_API_KEY = os.getenv("HUME_API_KEY")
+HUME_API_KEY = get_hume_api_key()
 
-# Load pretrained speaker recognition model
+# Load pretrained speaker recognition model using timm
 class SpeakerNet(torch.nn.Module):
     def __init__(self):
         super(SpeakerNet, self).__init__()
         self.melspec = MelSpectrogram()
-        self.model = torch.hub.load('pytorch/vision:v0.10.0', 'resnet34', pretrained=True)
+        self.model = timm.create_model('resnet34', pretrained=True)
         self.model.fc = torch.nn.Linear(self.model.fc.in_features, 512)  # Embedding size
 
     def forward(self, x):
         x = self.melspec(x)
-        x = x.unsqueeze(1)
+        if x.dim() == 3:  # Ensure the tensor has the right number of dimensions
+            x = x.unsqueeze(1)
+        x = x.repeat(1, 3, 1, 1)  # (batch_size, 3, n_mels, time_steps) for 3 input channels
+        x = F.interpolate(x, size=(224, 224), mode='bilinear', align_corners=False)
         x = self.model(x)
         return x
 
 model = SpeakerNet()
-model.load_state_dict(torch.load('path_to_pretrained_model.pth'))
-model.eval()
+model.eval()  # Set the model to evaluation mode
 
 def listen_to_user():
     duration = 7  # seconds
@@ -57,22 +58,28 @@ def listen_to_user():
 def is_silence(audio_data, threshold):
     amplitude = np.abs(audio_data)
     max_amplitude = np.max(amplitude)
-    if max_amplitude < 0.01:  # Adjust threshold as needed
-        return True
-    return False
+    return max_amplitude < 0.01  # Adjust threshold as needed
 
 def transcribe_audio(filepath, client):
-    audio_file = open(filepath, "rb")
-    transcription = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=audio_file,
-        response_format="text"
-    )
+    with open(filepath, "rb") as audio_file:
+        transcription = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio_file,
+            response_format="text"
+        )
     return transcription['text']
 
 def generate_voice_embeddings(audio):
     audio_tensor = torch.tensor(audio, dtype=torch.float32)
-    embedding = model(audio_tensor).detach().numpy()
+    audio_tensor = audio_tensor.unsqueeze(0).unsqueeze(1)  # Add batch and channel dimensions
+
+    mel_spec = MelSpectrogram()(audio_tensor)
+    if mel_spec.dim() == 3:  # Ensure mel_spec has the shape (batch_size, 1, n_mels, time_steps)
+        mel_spec = mel_spec.unsqueeze(1)
+    mel_spec = mel_spec.repeat(1, 3, 1, 1)  # Repeat channels
+    mel_spec = F.interpolate(mel_spec, size=(224, 224), mode='bilinear', align_corners=False)
+
+    embedding = model(mel_spec).detach().numpy()
     return embedding.flatten()
 
 async def analyze_voice_sentiment(filepath, csv_data):

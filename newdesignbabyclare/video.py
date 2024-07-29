@@ -14,12 +14,13 @@ import asyncio
 import os
 from dotenv import load_dotenv
 from audio import generate_voice_embeddings
+from env import get_hume_api_key
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Retrieve Hume API key from environment variables
-HUME_API_KEY = os.getenv("HUME_API_KEY")
+HUME_API_KEY = get_hume_api_key()
 
 async def stream_video():
     cap = cv2.VideoCapture(0)
